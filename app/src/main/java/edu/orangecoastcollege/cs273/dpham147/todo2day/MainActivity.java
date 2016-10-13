@@ -2,34 +2,40 @@ package edu.orangecoastcollege.cs273.dpham147.todo2day;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.widget.EditText;
+import android.widget.ListView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    private DBHelper database;
+    private List<Task> taskList;
+    private TaskListAdapter taskListAdapter;
+
+    private EditText taskEditText;
+    private ListView taskListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // FOR NOW - Delete old DB, then create new
-        this.deleteDatabase(DBHelper.DATABASE_TABLE);
         // Create the DBHelper reference
-        DBHelper db = new DBHelper(this);
+        database = new DBHelper(this);
 
-        // Let's make a new task and add to DB
-        db.addTask(new Task(1, "Study for CS273 Midterm", 0));
-        db.addTask(new Task(2, "Play FGO", 0));
-        db.addTask(new Task(3, "Do Homework", 0));
-        db.addTask(new Task(4, "Make Dinner", 0));
-        db.addTask(new Task(5, "Do stuff", 0));
+        // Fill list with task from DB
+        taskList = database.getAllTasks();
 
-        // Let's get all tasks from DB and print with Log.i()
-        ArrayList<Task> allTask = db.getAllTasks();
-        // Loop through each task, print to Log.i();
-        for (Task singleTask : allTask) {
-            Log.i("DATABASE TASK", singleTask.toString());
-        }
+        // Create custom task list adapter
+        // (We want to associate the adapter with the context, layout, and the List
+        taskListAdapter = new TaskListAdapter(this, R.layout.task_item, taskList);
+
+        // Connect the listview to the layout
+        taskListView = (ListView) findViewById(R.id.taskListView);
+
+        // Associate the adapter with the ListView
+        taskListView.setAdapter(taskListAdapter);
+
     }
 }
